@@ -145,4 +145,65 @@ function setTrack(i,autoplay=true){
 function play(){audio.play().then(()=>{state.playing=true;sync()}).catch(()=>toast("File audio belum tersedia."))}
 function pause(){audio.pause();state.playing=false;sync()}
 function toggle(){state.index<0?setTrack(0):state.playing?pause():play()}
-function sync(){const icon=state.playing?'<svg class="ico" viewBox="0 0 24 24"><path d="M7 5v14M17 5v14"/></svg>':'<svg class="ico" viewBox="0 0 24 
+function sync(){const icon=state.playing?'<svg class="ico" viewBox="0 0 24 24"><path d="M7 5v14M17 5v14"/></svg>':'<svg class="ico" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/></svg>';$("#miniPlay").innerHTML=icon;$("#mainPlay").innerHTML=icon}
+function fmt(s){if(!isFinite(s))return"0:00";s=Math.max(0,s);return Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0")}
+function next(){
+ if(!tracks.length)return;
+ if(state.queue.length){setTrack(state.queue.shift());return}
+ let n;if(state.shuffle){do n=Math.floor(Math.random()*tracks.length);while(tracks.length>1&&n===state.index)}else n=(state.index+1)%tracks.length;setTrack(n)
+}
+function prev(){if(audio.currentTime>3){audio.currentTime=0;return}setTrack((state.index-1+tracks.length)%tracks.length)}
+function toast(msg){const x=$("#toast");x.textContent=msg;x.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>x.classList.remove("on"),1500)}
+function openFull(){if(state.index<0)setTrack(0,false);$("#full").classList.add("on")}
+function closeSheet(){ $("#sheet").classList.remove("on");$("#overlay").classList.remove("on")}
+$("#list").addEventListener("click",e=>{const fav=e.target.closest("[data-fav]"),more=e.target.closest("[data-more]"),row=e.target.closest(".track");if(fav){const i=+fav.dataset.fav;state.favorites.has(i)?state.favorites.delete(i):state.favorites.add(i);save();render();return}if(more){state.sheetIndex=+more.dataset.more;$("#favAction").innerHTML=`<span>♡</span>${state.favorites.has(state.sheetIndex)?"Hapus dari favorit":"Tambah ke favorit"}`;$("#sheet").classList.add("on");$("#overlay").classList.add("on");return}if(row)setTrack(+row.dataset.i)});
+$("#search").addEventListener("input",e=>{state.query=e.target.value;render()});
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");state.tab=b.dataset.tab;render()});
+$("#mini").onclick=e=>{if(e.target.closest("#miniPlay"))return;openFull()};$("#miniPlay").onclick=e=>{e.stopPropagation();toggle()};$("#mainPlay").onclick=toggle;$("#prev").onclick=prev;$("#next").onclick=next;
+$("#closeFull").onclick=()=>$("#full").classList.remove("on");$("#fullMore").onclick=()=>{$("#sheet").classList.add("on");$("#overlay").classList.add("on")};
+$("#overlay").onclick=closeSheet;
+$("#favAction").onclick=()=>{const i=state.sheetIndex;if(state.favorites.has(i))state.favorites.delete(i);else state.favorites.add(i);save();render();closeSheet();toast(state.favorites.has(i)?"Ditambahkan ke favorit":"Dihapus dari favorit")};
+$("#queueAction").onclick=()=>{const i=state.sheetIndex;if(i!==state.index&&!state.queue.includes(i))state.queue.push(i);closeSheet();toast("Ditambahkan ke antrean")};
+function setSpeed(){state.speed=state.speed===1?1.25:state.speed===1.25?1.5:state.speed===1.5?.75:1;audio.playbackRate=state.speed;$("#speedAction").innerHTML=`<span>↯</span>Kecepatan: ${state.speed}×`;$("#speedBtn").textContent=state.speed+"× Speed";toast("Kecepatan "+state.speed+"×")}
+$("#speedAction").onclick=()=>{setSpeed();closeSheet()};$("#speedBtn").onclick=setSpeed;
+$("#shuffle").onclick=()=>{state.shuffle=!state.shuffle;$("#shuffle").classList.toggle("on",state.shuffle);toast(state.shuffle?"Shuffle aktif":"Shuffle mati")};
+$("#repeat").onclick=()=>{state.repeat=!state.repeat;$("#repeat").classList.toggle("on",state.repeat);toast(state.repeat?"Repeat aktif":"Repeat mati")};
+$("#favFull").onclick=()=>{if(state.index<0)return;state.favorites.has(state.index)?state.favorites.delete(state.index):state.favorites.add(state.index);save();render();$("#favFull").textContent=state.favorites.has(state.index)?"♥ Favorit":"♡ Favorit"};
+$("#volumeBtn").onclick=()=>{audio.muted=!audio.muted;$("#volumeBtn").textContent=audio.muted?"🔇 Volume":"🔊 Volume";};
+$("#seek").addEventListener("input",e=>{if(audio.duration)audio.currentTime=audio.duration*(+e.target.value/1000)});
+audio.addEventListener("loadedmetadata",()=>$("#dur").textContent=fmt(audio.duration));
+audio.addEventListener("play",()=>{state.playing=true;sync()});audio.addEventListener("pause",()=>{state.playing=false;sync()});
+audio.addEventListener("ended",()=>{if(state.repeat)setTrack(state.index);else if(state.autoNext)next();else{state.playing=false;sync()}});
+let raf=0;function frame(){if(audio.duration){const p=audio.currentTime/audio.duration;$("#miniBar").style.width=(p*100)+"%";$("#seek").value=Math.round(p*1000);$("#cur").textContent=fmt(audio.currentTime)}raf=requestAnimationFrame(frame)}frame();
+$("#favNav").onclick=()=>{$(".tab[data-tab='fav']").click();$("#scroll").scrollTo({top:0,behavior:"smooth"})};$("#libraryNav").onclick=()=>{$(".tab[data-tab='all']").click();$("#search").focus()};$("#homeNav").onclick=()=>{$(".tab[data-tab='all']").click();$("#scroll").scrollTo({top:0,behavior:"smooth"})};
+
+document.addEventListener("keydown",e=>{if(e.target.matches("input"))return;if(e.code==="Space"){e.preventDefault();toggle()}if(e.code==="ArrowRight")next();if(e.code==="ArrowLeft")prev()});
+if("mediaSession"in navigator){navigator.mediaSession.setActionHandler("play",play);navigator.mediaSession.setActionHandler("pause",pause);navigator.mediaSession.setActionHandler("nexttrack",next);navigator.mediaSession.setActionHandler("previoustrack",prev)}
+
+const settings=$("#settings");
+function loadSettings(){
+ const a=localStorage.getItem("lm_accent")||"#7c5cff"; document.documentElement.style.setProperty("--accent",a);
+ document.querySelectorAll("[data-accent]").forEach(x=>x.classList.toggle("active",x.dataset.accent===a));
+ const an=localStorage.getItem("lm_anim")!=="0", bg=localStorage.getItem("lm_bg")!=="0", au=localStorage.getItem("lm_auto")!=="0";
+ $("#animToggle").classList.toggle("on",an);$("#bgToggle").classList.toggle("on",bg);$("#autoToggle").classList.toggle("on",au);state.autoNext=au;
+ document.querySelector(".bg").style.opacity=bg?"1":".72";
+ document.body.classList.toggle("reduced",!an);
+}
+function toggleSetting(btn,key,cb){btn.classList.toggle("on");localStorage.setItem(key,btn.classList.contains("on")?"1":"0");if(cb)cb(btn.classList.contains("on"))}
+
+/* Perbaikan Fungsionalitas Tombol Setting */
+$("#settingsBtn").onclick=()=>settings.classList.add("on");
+$("#closeSettings").onclick=()=>settings.classList.remove("on");
+
+$("#animToggle").onclick=()=>toggleSetting($("#animToggle"),"lm_anim",on=>document.body.classList.toggle("reduced",!on));
+$("#bgToggle").onclick=()=>toggleSetting($("#bgToggle"),"lm_bg",on=>$(".bg").style.opacity=on?"1":".72");
+$("#autoToggle").onclick=()=>toggleSetting($("#autoToggle"),"lm_auto",on=>state.autoNext=on);
+document.querySelectorAll("[data-accent]").forEach(b=>b.onclick=()=>{const a=b.dataset.accent;document.documentElement.style.setProperty("--accent",a);localStorage.setItem("lm_accent",a);loadSettings()});
+$("#resetSettings").onclick=()=>{["lm_accent","lm_anim","lm_bg","lm_auto"].forEach(k=>localStorage.removeItem(k));loadSettings();toast("Pengaturan dikembalikan")};
+loadSettings();
+render();sync();
+</script>
+</div>
+</body>
+</html>
+
