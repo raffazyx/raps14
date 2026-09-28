@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b0d12">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Rapzwy - Music</title>
+<style>
+:root{--accent:#7c5cff;--accent2:#19d3ff;--bg:#080a0f;--panel:#11141c;--panel2:#171b25;--text:#f7f8fb;--muted:#9299aa;--line:rgba(255,255,255,.09);--r:20px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;min-height:100%;margin:0;background:#080a0f;color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+body{background:radial-gradient(circle at 50% -10%,rgba(124,92,255,.24),transparent 35%),linear-gradient(145deg,#080a0f,#0c0f17 55%,#080a0f);padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+
+/* Ikon Presisi */
+svg.ico{width:20px;height:20px;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn svg,.more svg,.ctrl svg,.nav svg,.sheet svg{width:20px;height:20px}
+
+button,input{font:inherit}button{border:0;color:inherit;background:none;cursor:pointer}
+.app{height:100%;max-width:520px;margin:auto;position:relative;overflow:hidden;background:var(--bg);isolation:isolate}
+.bg{position:absolute;inset:-25%;z-index:-2;background:
+radial-gradient(circle at 25% 5%,rgba(124,92,255,.28),transparent 28%),
+radial-gradient(circle at 85% 30%,rgba(25,211,255,.16),transparent 25%),
+linear-gradient(145deg,#080a0f,#0c0f17 55%,#080a0f);pointer-events:none}
+.noise{position:absolute;inset:0;z-index:-1;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.scroll{height:100%;overflow:auto;padding:env(safe-area-inset-top) 16px 150px;scroll-behavior:smooth;overscroll-behavior:contain}.scroll::-webkit-scrollbar{display:none}
+.header{display:flex;align-items:center;justify-content:space-between;padding:18px 2px 14px;position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 60%,transparent)}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 25px rgba(124,92,255,.25);font-size:20px}
+.brand b{font-size:16px}.brand span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.iconbtn{width:40px;height:40px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.045);display:flex;align-items:center;justify-content:center;font-size:17px}
+.hero{padding:10px 0 18px}.hero h1{font-size:30px;letter-spacing:-1.2px}.hero p{color:var(--muted);font-size:13px;margin-top:5px}
+.search{height:46px;border:1px solid var(--line);background:rgba(255,255,255,.055);border-radius:15px;display:flex;align-items:center;gap:10px;padding:0 14px;margin:4px 0 16px}
+.search span{color:var(--muted)}.search input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font-size:14px}.search input::placeholder{color:#72798a}
+.tabs{display:flex;gap:8px;overflow:auto;padding-bottom:3px;margin-bottom:16px}.tabs::-webkit-scrollbar{display:none}.tab{white-space:nowrap;padding:9px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:12px;color:var(--muted)}.tab.active{background:var(--text);color:#090a0d;border-color:var(--text);font-weight:700}
+.section{display:flex;align-items:center;justify-content:space-between;margin:10px 2px}.section h2{font-size:18px}.section small{color:var(--muted)}
+.list{display:flex;flex-direction:column;gapu:8px}.track{display:flex;align-items:center;gap:11px;padding:8px;border:1px solid transparent;border-radius:16px;transition:transform .16s ease,background .16s ease,border-color .16s ease;content-visibility:auto;contain:layout paint style}.track:active{transform:scale(.985)}.track.active{background:rgba(124,92,255,.12);border-color:rgba(124,92,255,.3)}
+.cover{width:54px;height:54px;flex:0 0 54px;object-fit:cover;border-radius:13px;background:#202431}.meta{min-width:0;flex:1}.title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.artist{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.more{width:38px;height:38px;border-radius:12px;color:var(--muted);font-size:19px}.fav.on{color:#ff5b8a}
+.empty{padding:35px 10px;text-align:center;color:var(--muted);font-size:13px}.empty b{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+.mini{position:absolute;left:10px;right:10px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:20;border:1px solid var(--line);background:rgba(17,20,28,.94);border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.4);overflow:hidden;backdrop-filter:blur(10px)}
+.mini-main{height:68px;display:flex;align-items:center;padding:7px 10px;gap:10px}.mini .cover{width:52px;height:52px}.mini-info{min-width:0;flex:1}.mini-info b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-info span{font-size:11px;color:var(--muted)}.play{width:44px;height:44px;border-radius:50%;background:var(--text);color:#080a0f;display:grid;place-items:center;font-size:16px;font-weight:900}.bar{height:2px;background:rgba(255,255,255,.1)}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transform-origin:left;will-change:width}
+.nav{position:absolute;bottom:0;left:0;right:0;height:72px;padding:7px 20px calc(7px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;background:rgba(8,10,15,.92);border-top:1px solid var(--line);z-index:19;backdrop-filter:blur(10px)}
+.nav button{min-width:70px;color:var(--muted);font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.nav button b{display:flex;align-items:center;justify-content:center;width:24px;height:24px;font-size:0;margin-bottom:2px}
+.nav button.active{color:var(--text)}
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.42);opacity:0;pointer-events:none;transition:opacity .18s;z-index:40}.overlay.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:41;background:#12151e;border-radius:26px 26px 0 0;padding:12px 18px calc(20px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .24s cubic-bezier(.2,.8,.2,1);box-shadow:0 -25px 70px rgba(0,0,0,.5)}.sheet.on{transform:translateY(0)}.handle{width:38px;height:4px;border-radius:5px;background:#454b59;margin:0 auto 18px}.sheet button{display:flex;width:100%;padding:13px 3px;gap:12px;align-items:center;font-size:14px}.sheet button span{width:25px;text-align:center}
+.full{position:absolute;inset:0;z-index:50;background:linear-gradient(180deg,#171927,#080a0f 65%);transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom));overflow:auto}.full.on{transform:translateY(0)}.fulltop{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.fulltop small{font-size:10px;letter-spacing:1.6px;color:var(--muted);font-weight:800}.bigcover{width:min(82vw,380px);aspect-ratio:1;margin:0 auto 25px;border-radius:24px;object-fit:cover;box-shadow:0 25px 70px rgba(0,0,0,.5);background:#1b1e28}.fullinfo h2{font-size:23px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fullinfo p{color:var(--muted);font-size:13px;margin-top:5px}
+.range{margin:24px 0 18px}.range input{width:100%;accent-color:var(--text);height:5px}.times{display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-top:5px}.controls{display:flex;align-items:center;justify-content:space-between;margin:12px 4px 18px}.ctrl{font-size:20px;color:#dfe2e9;min-width:42px}.mainplay{width:68px;height:68px;border-radius:50%;background:var(--text);color:#080a0f;font-size:25px;display:grid;place-items:center}.extra{display:flex;justify-content:center;gap:24px;color:var(--muted);font-size:12px}.extra button.on{color:var(--text)}
+.toast{position:absolute;left:50%;bottom:145px;z-index:70;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#eef0f5;color:#0a0b0e;padding:9px 13px;border-radius:999px;font-size:11px;font-weight:700;transition:opacity .16s,transform .16s;white-space:nowrap}.toast.on{opacity:1;transform:translate(-50%,0)}
+body.reduced .track{transition:none}body.reduced .settings,body.reduced .full,body.reduced .sheet,body.reduced .overlay{transition:none}
+@media(min-width:700px){.app{height:900px;max-height:100vh;border-radius:28px;box-shadow:0 25px 90px #000}.mini{bottom:82px}}
+
+.settings{position:absolute;inset:0;z-index:60;background:linear-gradient(180deg,#121522,#080a0f);padding:calc(14px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));overflow:auto;transform:translateX(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}.settings.on{transform:translateX(0)}
+.settings-head{height:50px;display:flex;align-items:center;justify-content:space-between;font-size:16px;margin-bottom:22px}.settings-head>span{width:40px}
+.settings-card{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:20px;padding:4px 16px;margin-bottom:14px}.setting-row{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line)}.setting-row:last-child{border-bottom:0}.setting-row b{display:block;font-size:13px}.setting-row small{display:block;color:var(--muted);font-size:10px;margin-top:4px;line-height:1.4}
+.toggle{width:44px;height:25px;border-radius:20px;background:#343946;padding:3px;transition:background .2s}.toggle i{display:block;width:19px;height:19px;border-radius:50%;background:#fff;transition:transform .2s}.toggle.on{background:var(--accent)}.toggle.on i{transform:translateX(19px)}
+.setting-label{font-size:12px;color:var(--muted);padding:12px 0 9px}.accent-list{display:flex;gap:12px;padding:2px 0 15px}.accent-list button{width:34px;height:34px;border-radius:50%;background:var(--c);border:3px solid rgba(255,255,255,.12)}.accent-list button.active{outline:2px solid #fff;outline-offset:2px}
+.reset{width:100%;height:46px;border:1px solid var(--line);border-radius:14px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.035)}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.bg{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="bg"></div><div class="noise"></div>
+<div class="scroll" id="scroll">
+<header class="header">
+  <div class="brand"><div class="logo">♫</div><div><b>Local Music</b><span>Rapzwy - Music</span></div></div>
+  <button class="iconbtn" id="settingsBtn" aria-label="Pengaturan">
+    <svg class="ico" viewBox="0 0 25 25"><path d="M13 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"/><path d="m19.4 15 .9 1.6-1.7 1.7-1.6-.9a7.7 7.7 0 0 1-1.7 1l-.4 1.8h-2.4l-.4-1.8a7.7 7.7 0 0 1-1.7-1l-1.6.9-1.7-1.7.9-1.6a7.7 7.7 0 0 1-1-1.7L5.2 13v-2.4l1.8-.4a7.7 7.7 0 0 1 1-1.7l-.9-1.6 1.7-1.7 1.6.9a7.7 7.7 0 0 1 1.7-1l.4-1.8h2.4l.4 1.8a7.7 7.7 0 0 1 1.7 1l1.6-.9 1.7 1.7-.9 1.6a7.7 7.7 0 0 1 1 1.7l1.8.4V13l-1.8.4a7.7 7.7 0 0 1-1 1.6Z"/></svg>
+  </button>
+</header>
+<section class="hero"><h1>Musik kamu.</h1><p>Owned Jeprix</p></section>
+<label class="search"><span><svg class="ico" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></span><input id="search" placeholder="Cari lagu atau artis…" autocomplete="off"></label>
+<div class="tabs"><button class="tab active" data-tab="all">Semua</button><button class="tab" data-tab="fav">Favorit</button><button class="tab" data-tab="recent">Terakhir diputar</button></div>
+<div class="section"><h2 id="sectionTitle">Semua lagu</h2><small id="count"></small></div>
+<div class="list" id="list"></div>
+</div>
+
+<div class="mini" id="mini"><div class="mini-main"><img class="cover" id="miniArt" alt=""><div class="mini-info"><b id="miniTitle">Belum ada lagu</b><span id="miniArtist">Pilih lagu untuk mulai</span></div><button class="play" id="miniPlay" aria-label="Putar"><svg class="ico" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/></svg></button></div><div class="bar"><i id="miniBar"></i></div></div>
+
+<nav class="nav">
+  <button class="active" id="homeNav"><b><svg class="ico" viewBox="0 0 24 24"><path d="m3 10.8 9-7.3 9 7.3"/><path d="M5.5 9.8v10h13v-10M9.5 19.8v-6h5v6"/></svg></b>Beranda</button>
+  <button id="libraryNav"><b><svg class="ico" viewBox="0 0 24 24"><path d="M8 5v13.5a2.5 2.5 0 1 1-2-2.4"/><path d="M8 5 19 3v12.5a2.5 2.5 0 1 1-2-2.4V6.5L8 8"/></svg></b>Library</button>
+  <button id="favNav"><b><svg class="ico" viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.1-8.8 10-8.8 10s-8.8-4.9-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></b>Favorit</button>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet"><div class="handle"></div><button id="favAction"><span><svg class="ico" viewBox="0 0 24 24"><path d="M20.8 8.7c0 5.1-8.8 10-8.8 10s-8.8-4.9-8.8-10A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span>Tambah ke favorit</button><button id="queueAction"><span><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Putar berikutnya</button><button id="speedAction"><span><svg class="ico" viewBox="0 0 24 24"><path d="m13 2-8 12h7l-1 8 8-12h-7l1-8Z"/></svg></span>Kecepatan: 1×</button></div>
+
+<div class="settings" id="settings">
+  <div class="settings-head"><button class="iconbtn" id="closeSettings" aria-label="Tutup"><svg class="ico" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button><b>Pengaturan</b><span></span></div>
+  <div class="settings-card">
+    <div class="setting-row"><div><b>Animasi halus</b><small>Kurangi efek berat agar pemutar tetap responsif.</small></div><button class="toggle on" id="animToggle"><i></i></button></div>
+    <div class="setting-row"><div><b>Background bergerak</b><small>Efek cahaya lembut di latar.</small></div><button class="toggle on" id="bgToggle"><i></i></button></div>
+    <div class="setting-row"><div><b>Putar otomatis</b><small>Mulai lagu berikutnya setelah lagu selesai.</small></div><button class="toggle on" id="autoToggle"><i></i></button></div>
+  </div>
+  <div class="settings-card">
+    <div class="setting-label">Tema aksen</div>
+    <div class="accent-list"><button data-accent="#7c5cff" style="--c:#7c5cff"></button><button data-accent="#19d3ff" style="--c:#19d3ff"></button><button data-accent="#ff5b8a" style="--c:#ff5b8a"></button><button data-accent="#48d597" style="--c:#48d597"></button></div>
+  </div>
+  <button class="reset" id="resetSettings">Kembalikan pengaturan</button>
+</div>
+
+<div class="full" id="full">
+<div class="fulltop"><button class="iconbtn" id="closeFull" aria-label="Tutup"><svg class="ico" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button><small>NOW PLAYING</small><button class="iconbtn" id="fullMore" aria-label="Menu"><svg class="ico" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div>
+<img class="bigcover" id="bigArt" alt=""><div class="fullinfo"><h2 id="bigTitle">Belum ada lagu</h2><p id="bigArtist">—</p></div>
+<div class="range"><input id="seek" type="range" min="0" max="1000" value="0"><div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div></div>
+<div class="controls"><button class="ctrl" id="shuffle" aria-label="Shuffle"><svg class="ico" viewBox="0 0 24 24"><path d="M17 3h4v4"/><path d="M3 7h3c5 0 6 10 11 10h4"/><path d="m17 17 4 4v-4"/><path d="M3 17h3c1.8 0 2.9-1.1 3.8-2.4"/><path d="M14.2 9.4C15.2 8 16.1 7 17 7h4"/></svg></button><button class="ctrl" id="prev" aria-label="Sebelumnya"><svg class="ico" viewBox="0 0 24 24"><path d="m17 5-8 7 8 7"/><path d="M5 5v14"/></svg></button><button class="mainplay" id="mainPlay" aria-label="Putar"><svg class="ico" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/></svg></button><button class="ctrl" id="next" aria-label="Berikutnya"><svg class="ico" viewBox="0 0 24 24"><path d="m7 5 8 7-8 7"/><path d="M19 5v14"/></svg></button><button class="ctrl" id="repeat" aria-label="Repeat"><svg class="ico" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="m7 22-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg></button></div>
+<div class="extra"><button id="volumeBtn">🔊 Volume</button><button id="speedBtn">1× Speed</button><button id="favFull">♡ Favorit</button></div>
+</div>
+<div class="toast" id="toast"></div>
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+"use strict";
+const tracks=[
+{filename:"lagu1.mp3",title:"Judul Lagu 1",artist:"Nama Artis 1"},
+{filename:"lagu2",title:"Judul Lagu 2",artist:"Nama Artis 2"},
+{filename:"midnight-city",title:"Midnight City",artist:"M83"}
+];
+const $=s=>document.querySelector(s), audio=$("#audio");
+const state={index:-1,playing:false,shuffle:false,repeat:false,tab:"all",query:"",autoNext:true,favorites:new Set(JSON.parse(localStorage.getItem("lm_fav")||"[]")),recent:JSON.parse(localStorage.getItem("lm_recent")||"[]"),speed:1,queue:[]};
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const art=i=>`album/${tracks[i].filename}.jpg`, src=i=>`lagu/${tracks[i].filename}.mp3`;
+function render(){
+ let arr=tracks.map((t,i)=>({...t,i})).filter(t=>{
+  const q=state.query.toLowerCase();
+  const match=!q||t.title.toLowerCase().includes(q)||t.artist.toLowerCase().includes(q);
+  const tab=state.tab==="fav"?state.favorites.has(t.i):state.tab==="recent"?state.recent.includes(t.i):true;
+  return match&&tab;
+ });
+ $("#count").textContent=arr.length+" lagu"; $("#sectionTitle").textContent=state.tab==="fav"?"Favorit":state.tab==="recent"?"Terakhir diputar":"Semua lagu";
+ $("#list").innerHTML=arr.length?arr.map(t=>`<div class="track ${t.i===state.index?"active":""}" data-i="${t.i}">
+ <img class="cover" src="${art(t.i)}" alt="" onerror="this.style.opacity=.25">
+ <div class="meta"><div class="title">${esc(t.title)}</div><div class="artist">${esc(t.artist)}</div></div>
+ <button class="more fav ${state.favorites.has(t.i)?"on":""}" data-fav="${t.i}">${state.favorites.has(t.i)?"♥":"♡"}</button><button class="more" data-more="${t.i}">⋯</button></div>`).join(""):`<div class="empty"><b>Tidak ada lagu</b>Cek folder <strong>lagu/</strong> atau ubah pencarian.</div>`;
+}
+function save(){localStorage.setItem("lm_fav",JSON.stringify([...state.favorites]));localStorage.setItem("lm_recent",JSON.stringify(state.recent.slice(0,20)))}
+function setTrack(i,autoplay=true){
+ if(!tracks[i])return; state.index=i; audio.src=src(i); audio.playbackRate=state.speed;
+ const t=tracks[i]; $("#miniArt").src=art(i);$("#bigArt").src=art(i);$("#miniTitle").textContent=t.title;$("#miniArtist").textContent=t.artist;$("#bigTitle").textContent=t.title;$("#bigArtist").textContent=t.artist;
+ state.recent=[i,...state.recent.filter(x=>x!==i)].slice(0,20);save();render();
+ if(autoplay) play();
+}
+function play(){audio.play().then(()=>{state.playing=true;sync()}).catch(()=>toast("File audio belum tersedia."))}
+function pause(){audio.pause();state.playing=false;sync()}
+function toggle(){state.index<0?setTrack(0):state.playing?pause():play()}
+function sync(){const icon=state.playing?'<svg class="ico" viewBox="0 0 24 24"><path d="M7 5v14M17 5v14"/></svg>':'<svg class="ico" viewBox="0 0 24 
